@@ -5,13 +5,14 @@
   - Java 11 with JAVA_HOME configured
 - Then it deploys [tomcat sample app](https://tomcat.apache.org/tomcat-5.5-doc/appdev/sample/sample.war) in tomcat 8 server.
 - Docker file is divided into two parts
-    -   Setup
-    -   Deployment
+  - Setup
+  - Deployment
 - On each git push, a new image build is triggered in [Docker hub](https://cloud.docker.com/repository/docker/sanjaynamdeo/tomcat-docker-github-automation/general)
 
 ### Steps to pull image and run the sample-app on tomcat 8
 
 1. Pull the deployment image from [Docker hub](https://cloud.docker.com/repository/docker/sanjaynamdeo/ubuntu18.04-tomcat8-jdk8/general)
+
    `docker pull sanjaynamdeo/tomcat-docker-github-automation:latest`
 
 2. Get the image repository and version
@@ -29,7 +30,7 @@
 
 1. Use base image ubuntu 18.04 for underlying OS
    `FROM ubuntu:18.04`
-   
+
 2. OPTIONAL: Set auther of the docker file
    `LABEL "Maintainer"="https://github.com/sanjay-namdeo/"`
 
@@ -43,11 +44,14 @@
    `RUN apt-get -y install curl wget vim`
 
 6. Install Java 11
+
    ```RUN cd /opt; \
-    wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" https://download.oracle.com/otn-pub/java/jdk/11.0.1+13/90cf5d8f270a4347a95050320eef3fb7/jdk-11.0.1_linux-x64_bin.tar.gz \
-    && tar zxf jdk-11.0.1_linux-x64_bin.tar.gz \
-    && ln -s jdk-11 java \
-    && rm -f jdk-11.0.1_linux-x64_bin.tar.gz```
+   wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" https://download.oracle.com/otn-pub/java/jdk/11.0.1+13/90cf5d8f270a4347a95050320eef3fb7/jdk-11.0.1_linux-x64_bin.tar.gz \
+   && tar zxf jdk-11.0.1_linux-x64_bin.tar.gz \
+   && ln -s jdk-11 java \
+   && rm -f jdk-11.0.1_linux-x64_bin.tar.gz```
+
+   ````
 
 7. Set JAVA_HOME
    `ENV JAVA_HOME=/opt/jdk-11.0.1`
@@ -59,14 +63,16 @@
    `ENV TOMCAT_VERSION 8.5.37`
 
 10. Following are done in this step:
-    * Download tomcat-8.5.37 which will be in tax.gz. 
-    * Unzil tar file inside /opt directory
-    * Move all tomcat contents from /opt/apache-tomcat-8.5.37 to /opt/tomcat
-    * Remove zip file as it is not required now
-    * Remove example folder, as it is not required
-    * Remove docs folder, as it is not required
-    * Remove ROOT folder, as it is not required
-    ```RUN wget --quiet --no-cookies http://apache.rediris.es/tomcat/tomcat-8/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz -O /tmp/tomcat.tgz \
+
+    - Download tomcat-8.5.37 which will be in tax.gz.
+    - Unzil tar file inside /opt directory
+    - Move all tomcat contents from /opt/apache-tomcat-8.5.37 to /opt/tomcat
+    - Remove zip file as it is not required now
+    - Remove example folder, as it is not required
+    - Remove docs folder, as it is not required
+    - Remove ROOT folder, as it is not required
+
+    ````RUN wget --quiet --no-cookies http://apache.rediris.es/tomcat/tomcat-8/v${TOMCAT_VERSION}/bin/apache-tomcat-${TOMCAT_VERSION}.tar.gz -O /tmp/tomcat.tgz \
         && tar xzvf /tmp/tomcat.tgz -C /opt \
         && mv /opt/apache-tomcat-${TOMCAT_VERSION} /opt/tomcat \
         && rm /tmp/tomcat.tgz \
@@ -74,15 +80,17 @@
         && rm -rf /opt/tomcat/webapps/docs \
         && rm -rf /opt/tomcat/webapps/ROOT```
 
+    ````
+
 11. Deploy sample app to tomcat
-   `COPY /sample-app/ /opt/tomcat/webapps/sample-app/`
+    `COPY /sample-app/ /opt/tomcat/webapps/sample-app/`
 
 12. Set enviornment paths
-   `ENV CATALINA_HOME /opt/tomcat`
+    `ENV CATALINA_HOME /opt/tomcat`
 
-   `ENV PATH $PATH:$CATALINA_HOME/bin`
+`ENV PATH $PATH:$CATALINA_HOME/bin`
 
-   `ENV JAVA_OPTS="-Xms1024m -Xmx1024m -Xss8192k -XX:CMSInitiatingOccupancyFraction=50 -XX:+ExplicitGCInvokesConcurrent -XX:+CMSClassUnloadingEnabled -XX:NewRatio=1 -XX:SurvivorRatio=1  -Dorg.apache.cxf.JDKBugHacks.imageIO=false"`
+`ENV JAVA_OPTS="-Xms1024m -Xmx1024m -Xss8192k -XX:CMSInitiatingOccupancyFraction=50 -XX:+ExplicitGCInvokesConcurrent -XX:+CMSClassUnloadingEnabled -XX:NewRatio=1 -XX:SurvivorRatio=1 -Dorg.apache.cxf.JDKBugHacks.imageIO=false"`
 
 4. Export port 8080 to host machine
    `EXPOSE 8080`
